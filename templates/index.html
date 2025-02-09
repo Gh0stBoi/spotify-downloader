@@ -1,13 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify Playlist Downloader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h2>Paste Spotify Playlist URL</h2>
-    <form action="/download" method="post">
-        <input type="text" name="playlist_url" placeholder="Enter Spotify Playlist URL" required>
-        <button type="submit">Download</button>
-    </form>
+    <div class="container">
+        <h1>🎵 Spotify Playlist Downloader</h1>
+        <form id="downloadForm">
+            <input type="text" id="playlist_url" name="playlist_url" placeholder="Paste Spotify Playlist URL" required>
+            <button type="submit">Download</button>
+        </form>
+        <p class="status" id="statusMessage"></p>
+    </div>
+
+    <script>
+        document.getElementById("downloadForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            let playlistUrl = document.getElementById("playlist_url").value;
+            let statusMessage = document.getElementById("statusMessage");
+
+            statusMessage.textContent = "⏳ Downloading... Please wait.";
+
+            let response = await fetch("/download", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `playlist_url=${encodeURIComponent(playlistUrl)}`
+            });
+
+            let result = await response.json();
+
+            if (response.ok) {
+                statusMessage.textContent = "✅ Download complete!";
+            } else {
+                statusMessage.textContent = "❌ Error: " + result.error;
+            }
+        });
+    </script>
 </body>
 </html>
